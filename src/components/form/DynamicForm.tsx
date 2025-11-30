@@ -9,7 +9,7 @@ const dynamicFormConfig: FieldConfig[] = [
   {
     "name": "projectTitle",
     "type": "text",
-    "label": "Project Title",
+    "label": "Project Title*",
     "placeholder": "e.g., Q3 Marketing Campaign",
     "required": true,
     
@@ -42,6 +42,7 @@ const dynamicFormConfig: FieldConfig[] = [
 
 export function DynamicForm() {
   const { 
+    control,
     handleSubmit, 
     register, 
     formState: { errors } 
@@ -70,6 +71,7 @@ export function DynamicForm() {
           field={fieldConfig}
           register={register}
           errors={errors}
+          control={control}
         />
       ))}
 

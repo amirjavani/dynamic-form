@@ -5,7 +5,7 @@ import { MobileDatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 
 import React from 'react';
-import { UseFormRegister, FieldErrors } from 'react-hook-form';
+import { UseFormRegister, FieldErrors, Controller, Control, FieldValues } from 'react-hook-form';
 
 // Define the shape of a single field configuration (based on your JSON)
 export interface FieldConfig {
@@ -23,9 +23,10 @@ interface FieldRendererProps {
   field: FieldConfig;
   register: UseFormRegister<any>;
   errors: FieldErrors<any>;
+  control: Control<FieldValues, any, FieldValues>;
 }
 
-const FieldRenderer: React.FC<FieldRendererProps> = ({ field, register, errors }) => {
+const FieldRenderer: React.FC<FieldRendererProps> = ({ field, register, errors, control }) => {
   const errorMessage = errors[field.name]?.message as string;
   const isError = !!errorMessage;
 
@@ -52,24 +53,19 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({ field, register, errors }
 
   let InputComponent;
 
-  const [select, setSelect] = React.useState('');
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setSelect(event.target.value as string);
-  };
 
   switch (field.type) {
     case 'select':
       InputComponent = (
 
-        <FormControl fullWidth {...commonProps}>
-          <InputLabel id="demo-simple-select-label">{field.label}</InputLabel>
+        <FormControl fullWidth >
+          <InputLabel >{field.label}</InputLabel>
           <Select
             labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={select}
             label={field.label}
-            onChange={handleChange}
+
+            {...commonProps}
           >
             {field.options?.map(option => (
               <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
@@ -81,14 +77,24 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({ field, register, errors }
       break;
 
     case 'date':
-      InputComponent = <MobileDatePicker defaultValue={dayjs()} label={field.name}  {...commonProps} />;
+      InputComponent = <Controller
+        name={field.name}
+        control={control}
+        defaultValue={dayjs()}
+        render={({ field }) => (
+          <MobileDatePicker
+            label={field.name}
+            value={field.value}
+            onChange={field.onChange}
+          />
+        )}
+      />;
       break;
 
     case 'number':
     case 'text':
     default:
-      InputComponent = <TextField label={field.name} variant="outlined" type={field.type} {...commonProps} />
-      // <input type={field.type} {...commonProps} />;
+      InputComponent = <TextField label={field.label} variant="outlined" type={field.type} {...commonProps} />
       break;
   }
 
